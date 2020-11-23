@@ -8,14 +8,15 @@ from django.http import HttpResponse
 from django.urls import reverse
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
-from utils.mixin import LoginRequireMixin
 import re
+from utils.mixin import LoginRequireMixin
+
+
 User = get_user_model()
 # Create your views here.
 
+
 # /user/register
-
-
 def register(request):
     """注册"""
     if request.method == 'GET':
@@ -169,8 +170,7 @@ class ActiveView(View):
             user.is_active = 1
             user.save()
 
-            # 激活成功，跳转到登录页面
-            # 跳转仍然是反向解析
+            # 激活成功，跳转到登录页面，跳转仍然是反向解析
             return redirect(reverse('user:login'))
 
         except SignatureExpired as e:
@@ -178,9 +178,8 @@ class ActiveView(View):
             # 应该返回某个链接, 再发一次激活的邮件。
             return HttpResponse('链接已过期，请重新注册。')
 
+
 # /user/login
-
-
 class LoginView(View):
     """登录页面"""
     def get(self, request):
@@ -215,8 +214,6 @@ class LoginView(View):
             # 用户名或密码错误
             return render(request, 'templates/login.html', {'errmsg': '用户名或密码不正确。'})
 
-        # 返回应答
-
 
 class LogoutView(View):
     """退出登录"""
@@ -232,11 +229,15 @@ class UserInfoView(LoginRequireMixin, View):
     def get(self, request):
         page = 'info'
         return render(request, 'templates/user_center_info.html', {'page': page})
-#/user/order
+
+
+# /user/order
 class UserOrderView(LoginRequireMixin, View):
     def get(self, request):
         page = 'order'
         return render(request, 'templates/user_center_order.html', {'page': page})
+
+
 # /user/address
 class AddressView(LoginRequireMixin, View):
     def get(self, request):
