@@ -224,21 +224,21 @@ class LogoutView(View):
         return redirect(reverse('goods:index'))
 
 
-# /user
+# /user/info/
 class UserInfoView(LoginRequireMixin, View):
     def get(self, request):
         page = 'info'
         return render(request, 'templates/user_center_info.html', {'page': page})
 
 
-# /user/order
+# /user/order/
 class UserOrderView(LoginRequireMixin, View):
     def get(self, request):
         page = 'order'
         return render(request, 'templates/user_center_order.html', {'page': page})
 
 
-# /user/address
+# /user/address/
 class AddressView(LoginRequireMixin, View):
     def get(self, request):
         page = 'address'
