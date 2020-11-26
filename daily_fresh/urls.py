@@ -22,6 +22,6 @@ urlpatterns = [
     re_path(r'^tinymce/', include('tinymce.urls')),  # 富文本编辑器
     re_path(r'^cart/', include(('apps.cart.urls', 'cart'), namespace='cart')),  # 购物车模块
     re_path(r'^order/', include(('apps.order.urls', 'order'), namespace='order')),  # 订单模块
-    re_path(r'^$/', include(('apps.goods.urls', 'goods'), namespace='goods')),  # 商品模块
+    re_path(r'^', include(('apps.goods.urls', 'goods'), namespace='goods')),  # 商品模块
 
 ]
