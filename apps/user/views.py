@@ -135,7 +135,7 @@ class LoginView(View):
                 # 用户已激活，记录用户的登录状态。session
                 login(request, user)
                 # 获取登陆后所要跳转到的地址，登录装饰器login_require需求时用到。
-                # 默认跳转到首页
+                # 默认跳转到首页，url提交的数据使用GET获取，表单采用POST.get()获取
                 next_url = request.GET.get('next', reverse('goods:index'))  # 如果有next值，则返回next值，否则返回后面的referse地址
                 # 跳转到next_url
                 return redirect(next_url)
