@@ -16,87 +16,7 @@ from celery_tasks import tasks
 User = get_user_model()
 # Create your views here.
 
-
 # /user/register
-def register(request):
-    """注册"""
-    if request.method == 'GET':
-        # 刚打开网址，注册页面
-        return render(request, 'templates/register.html')
-    else:
-        # 进行注册处理
-        # 接收数据
-        username = request.POST.get('user_name')
-        password = request.POST.get('pwd')
-        email = request.POST.get('email')
-        allow = request.POST.get('allow')
-
-        # 进行数据校验，还可以校验更多信息，此处省略
-        # １．是否传完整数据
-        if not all((username, password, email)):
-            return render(request, 'templates/register.html', {'errmsg': '数据不完整，请完善注册信息。'})
-
-        # 2 判断邮箱格式是否正确
-        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
-            return render(request, 'templates/register.html', {'errmsg': '邮箱格式不合法。'})
-        # 校验是否勾选协议
-        if allow != 'on':
-            return render(request, 'templates/register.html', {'errmsg': '请同意协议。'})
-
-        # 校验用户名是否重复
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            user = None
-        if user:
-            return render(request, 'templates/register.html', {'errmsg': '用户名已存在，请重新输入。'})
-
-        # 进行业务处理：用户注册
-        user = User.objects.create_user(username, email, password)
-        user.is_active = 0
-        user.save()
-
-        # 返回应答，注册完了用户之后，跳转到首页。
-        return redirect(reverse('goods:index'))
-
-
-def register_handle(request):
-    # 进行注册处理
-    # 接收数据
-    username = request.POST.get('user_name')
-    password = request.POST.get('pwd')
-    email = request.POST.get('email')
-    allow = request.POST.get('allow')
-
-    # 进行数据校验，还可以校验更多信息，此处省略
-    # １．是否传完整数据
-    if not all((username, password, email)):
-        return render(request, 'templates/register.html', {'errmsg': '数据不完整，请完善注册信息。'})
-
-    # 2 判断邮箱格式是否正确
-    if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
-        return render(request, 'templates/register.html', {'errmsg': '邮箱格式不合法。'})
-    # 校验是否勾选协议
-    if allow != 'on':
-        return render(request, 'templates/register.html', {'errmsg': '请同意协议。'})
-
-    # 校验用户名是否重复
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        user = None
-    if user:
-        return render(request, 'templates/register.html', {'errmsg': '用户名已存在，请重新输入。'})
-
-    # 进行业务处理：用户注册
-    user = User.objects.create_user(username, email, password)
-    user.is_active = 0
-    user.save()
-
-    # 返回应答，注册完了用户之后，跳转到首页。
-    return redirect(reverse('goods:index'))
-
-
 class RegisterView(View):
     def get(self, request):
         return render(request, 'templates/register.html')
@@ -185,7 +105,17 @@ class ActiveView(View):
 class LoginView(View):
     """登录页面"""
     def get(self, request):
-        return render(request, 'templates/login.html')
+
+        # 判断是否记住用户名
+        if 'username' in request.COOKIES:
+            username = request.COOKIES.get('username')
+            checked = 'checked'
+        else:
+            username = ''
+            checked = ''
+
+        # 使用模板
+        return render(request, 'templates/login.html', {'username': username, 'checked': checked})
 
     def post(self, request):
         """登录校验"""
@@ -202,8 +132,18 @@ class LoginView(View):
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
-                # 记录用户的登录状态。session
+                # 用户已激活，记录用户的登录状态。session
                 login(request, user)
+
+                response = redirect(reverse('goods:index'))
+                # 判断是否需要记住用户名
+                remember = request.POST.get('remember')
+                if remember == 'on':
+                    # 记住用户名
+                    response.set_cookie('username', username, max_age=7*24*3600)
+                else:
+                    response.delete_cookie('username')
+                return response
                 # 获取登陆后所要跳转到的地址
                 # 默认跳转到首页
                 next_url = request.GET.get('next', reverse('goods:index'))
@@ -211,7 +151,8 @@ class LoginView(View):
                 # 跳转到next_url
                 return redirect(next_url)
             else:
-                return render(request, 'templates/login.html', {'errmsg': '请先激活账户。'})  # 应该发激活邮件。
+                # 用户未激活
+                return render(request, 'templates/login.html', {'errmsg': '账号未激活，请先激活账户。'})  # 应该发激活邮件。
         else:
             # 用户名或密码错误
             return render(request, 'templates/login.html', {'errmsg': '用户名或密码不正确。'})
