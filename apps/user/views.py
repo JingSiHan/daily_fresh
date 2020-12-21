@@ -6,11 +6,15 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.urls import reverse
+
+from apps.user.models import Address
+from apps.goods.models import GoodsSKU
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 import re
 from utils.mixin import LoginRequireMixin
 from celery_tasks import tasks
+from django_redis import get_redis_connection
 
 
 User = get_user_model()
@@ -170,20 +174,102 @@ class LogoutView(View):
 # /user/info/
 class UserInfoView(LoginRequireMixin, View):
     def get(self, request):
-        page = 'info'
-        return render(request, 'templates/user_center_info.html', {'page': page})
+
+        # 获取用户信息
+        user = request.user
+        address = Address.objects.get_default_address(user=user)
+
+        # 获取用户的历史浏览记录
+
+        # 原本使用redis的方法：
+        # from redis import StrictRedis
+        # StrictRedis(host='127.0.0.1', port='6379', db=9)
+        con = get_redis_connection('default')
+        history_key = 'history_%d' %user.id
+
+        # 获取用户最新浏览的5条商品
+        sku_ids = con.lrange(history_key, 0, 4)
+
+        # 从数据库中查询用户浏览的商品的具体信息：
+        # goods_li = GoodsSKU.objects.filter(goods_id__in=sku_ids)
+        # goods_res = []
+        # for a_id in goods_li:
+        #     for good in goods_li:
+        #         if a_id == good:
+        #             goods_res.append(good)
+        # 遍历获取用户浏览的历史商品信息
+        goods_li = []
+        for id in sku_ids:
+            goods = GoodsSKU.objects.get(id=id)
+            goods_li.append(goods)
+
+        # 组织上下文：
+        context = {'user': user,
+                   'address': address,
+                   'goods_li': goods_li
+                   }
+
+        # 除了认为给template传递变量以外，django会把request.user传给template.即：可以直接在模板文件中使用user.
+        return render(request, 'templates/user_center_info.html', context)
 
 
 # /user/order/
 class UserOrderView(LoginRequireMixin, View):
     def get(self, request):
         page = 'order'
+
+        # 获取用户的订单信息
+
         return render(request, 'templates/user_center_order.html', {'page': page})
 
 
 # /user/address/
 class AddressView(LoginRequireMixin, View):
     def get(self, request):
-        page = 'address'
 
-        return render(request, 'templates/user_center_site.html', {'page': page})
+        user = request.user
+        # try:
+        #     address = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     # 不存在默认地址
+        #     address = None
+        address = Address.objects.get_default_address(user=user)
+
+        # 获取默认收货地址
+        return render(request, 'templates/user_center_site.html', {'address': address})
+
+    def post(self, request):
+        # 接收数据
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        # 数据校验
+        if not all([receiver, addr, phone]):
+            return render(request, 'templates/user_center_site.html', {'errmsg':'数据不完整。'})
+        # 校验手机号
+        if not re.match('^1[3|4|5|7|8][0-9]{9}$', phone):
+            return render(request, 'templates/user_center_site.html', {'errmsg':'手机号码格式不正确。'})
+
+        # 添加地址:如果用户已经添加地址，则新添加的不作为默认地址。如果之前没有地址，那么新添加的作为默认地址。
+        user = request.user
+        # try:
+        #     address = Address.objects.get(user=user, is_default=True)
+        # except Address.DoesNotExist:
+        #     # 不存在默认地址
+        #     address = None
+        address = Address.objects.get_default_address(user=user)
+        if address:
+            is_default = False
+        else:
+            is_default = True
+
+        Address.objects.create(user=user,
+                               addr=addr,
+                               zip_code=zip_code,
+                               phone=phone,
+                               is_default=is_default)
+        # 返回应答，刷新地址页面
+        return redirect(reverse('user:address'))  # get 请求方式
+
