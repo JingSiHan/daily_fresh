@@ -21,7 +21,7 @@ class IndexView(View):
         # 先尝试从缓存中获取页面信息
         context = cache.get('index_page_data')
         if context is None:
-            print('－－－－设置缓存！！！')
+            # print('－－－－设置缓存！！！')
             # 获取商品种类信息
             types = GoodsType.objects.all()
 
@@ -56,7 +56,7 @@ class IndexView(View):
 
             # 设置缓存
             cache.set('index_page_data', context, 3600)
-            print('写入缓存成功。')
+            # print('写入缓存成功。')
 
         # 组织模板上下文
         context = cache.get('index_page_data')

@@ -20,6 +20,7 @@
 					<a href="{% url 'user:register' %}">立即注册</a>
 				</div>
 				<div class="form_input">
+                    {# 不设置action时，提交表单会提交到浏览器地址栏 #}
 					<form method="post">
                         {% csrf_token %}
 						<input type="text" name="username" class="name_input" placeholder="请输入用户名" value="{{ username }}">

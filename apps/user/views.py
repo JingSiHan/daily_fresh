@@ -134,6 +134,11 @@ class LoginView(View):
             if user.is_active:
                 # 用户已激活，记录用户的登录状态。session
                 login(request, user)
+                # 获取登陆后所要跳转到的地址，登录装饰器login_require需求时用到。
+                # 默认跳转到首页
+                next_url = request.GET.get('next', reverse('goods:index'))  # 如果有next值，则返回next值，否则返回后面的referse地址
+                # 跳转到next_url
+                return redirect(next_url)
 
                 response = redirect(reverse('goods:index'))
                 # 判断是否需要记住用户名
@@ -144,12 +149,7 @@ class LoginView(View):
                 else:
                     response.delete_cookie('username')
                 return response
-                # 获取登陆后所要跳转到的地址
-                # 默认跳转到首页
-                next_url = request.GET.get('next', reverse('goods:index'))
 
-                # 跳转到next_url
-                return redirect(next_url)
             else:
                 # 用户未激活
                 return render(request, 'templates/login.html', {'errmsg': '账号未激活，请先激活账户。'})  # 应该发激活邮件。
