@@ -16,7 +16,7 @@ from apps.goods.models import GoodsType, IndexGoodsBanner, IndexPromotionBanner,
 
 
 # 0用于练习，１用于保存cession，２用作broker
-app = Celery('celery_tasks.tasks', broker='redis://127.0.0.1:6379/2')
+app = Celery('celery_tasks.tasks', broker='redis://192.168.1.19:6379/2')
 
 
 # 定义任务函数
