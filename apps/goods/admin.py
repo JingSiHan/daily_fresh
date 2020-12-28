@@ -25,7 +25,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         # cache.delete('index_page_data')
 
     def delete_model(self, request, obj):
-        super().delete_model()
+        super().delete_model(request, obj)
 
         # 发出任务，让celery　worker重新生成首页静态页面
         self.create_static_index_page()
