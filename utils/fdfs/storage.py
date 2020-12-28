@@ -48,7 +48,7 @@ class FDFS_Storage(Storage):
         filename = res.get('Remote file_id')
         return filename
 
-    def exits(self, name):
+    def exists(self, name):
         """Django判断文件名是否可用，可用才上传保存。"""
         return False
 
