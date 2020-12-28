@@ -206,7 +206,8 @@ class UserInfoView(LoginRequireMixin, View):
         # 组织上下文：
         context = {'user': user,
                    'address': address,
-                   'goods_li': goods_li
+                   'goods_li': goods_li,
+                   'page': 'info'
                    }
 
         # 除了认为给template传递变量以外，django会把request.user传给template.即：可以直接在模板文件中使用user.
@@ -217,16 +218,17 @@ class UserInfoView(LoginRequireMixin, View):
 class UserOrderView(LoginRequireMixin, View):
     def get(self, request):
         page = 'order'
+        context = {
+            'page': page,
+        }
 
         # 获取用户的订单信息
-
-        return render(request, 'templates/user_center_order.html', {'page': page})
+        return render(request, 'templates/user_center_order.html', context)
 
 
 # /user/address/
 class AddressView(LoginRequireMixin, View):
     def get(self, request):
-
         user = request.user
         # try:
         #     address = Address.objects.get(user=user, is_default=True)
@@ -234,9 +236,11 @@ class AddressView(LoginRequireMixin, View):
         #     # 不存在默认地址
         #     address = None
         address = Address.objects.get_default_address(user=user)
+        context = {'address': address,
+                   'page': 'address'}
 
         # 获取默认收货地址
-        return render(request, 'templates/user_center_site.html', {'address': address})
+        return render(request, 'templates/user_center_site.html', context)
 
     def post(self, request):
         # 接收数据
