@@ -5,7 +5,7 @@ from db.base_model import BaseModel
 
 
 class User(AbstractUser, BaseModel):
-    '''用户模型类'''
+    """用户模型类"""
 
     class Meta:
         db_table = 'df_user'
@@ -32,7 +32,7 @@ class AddressManager(models.Manager):
 
 
 class Address(BaseModel):
-    '''地址模型类'''
+    """地址模型类"""
     user = models.ForeignKey('User', verbose_name='所属账户', on_delete=models.CASCADE)
     receiver = models.CharField(max_length=20, verbose_name='收件人')
     addr = models.CharField(max_length=256, verbose_name='收件地址')

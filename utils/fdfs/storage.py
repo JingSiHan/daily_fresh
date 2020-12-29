@@ -3,7 +3,6 @@ from django.conf import settings
 from fdfs_client.client import Fdfs_client
 
 
-
 class FDFS_Storage(Storage):
     """自定义文件存储类"""
 

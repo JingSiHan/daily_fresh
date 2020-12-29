@@ -6,7 +6,8 @@ from apps.goods.models import GoodsType, IndexPromotionBanner, IndexTypeGoodsBan
 
 
 class BaseModelAdmin(admin.ModelAdmin):
-    def create_static_index_page(self):
+    @staticmethod
+    def create_static_index_page():
         from celery_tasks.tasks import generate_static_index
         generate_static_index.delay()
         # 清除首页缓存

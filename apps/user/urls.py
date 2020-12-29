@@ -3,6 +3,7 @@ from django.urls import re_path
 from apps.user import views
 from apps.user.views import RegisterView, ActiveView, LoginView, UserInfoView, UserOrderView, AddressView, LogoutView
 
+
 urlpatterns = [
     # re_path(r'^register$', views.register, name='register'),  # 注册
     # re_path(r'^register_handle$', views.register_handle, name='register_handle'),  # 注册

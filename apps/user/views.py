@@ -3,10 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.views.generic import View
 from django.conf import settings
-from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.urls import reverse
-
 from apps.user.models import Address
 from apps.goods.models import GoodsSKU
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -21,6 +19,8 @@ User = get_user_model()
 # Create your views here.
 
 # /user/register
+
+
 class RegisterView(View):
     def get(self, request):
         return render(request, 'templates/register.html')
@@ -77,7 +77,7 @@ class RegisterView(View):
         #                '<a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s' \
         #                '</a>' % (user, token, token)
 
-        tasks.send_register_active_eamil(to_email, username, token)
+        tasks.send_register_active_email(to_email, username, token)
 
         # 返回应答，注册完了用户之后，跳转到首页。
         return redirect(reverse('goods:index'))
@@ -276,4 +276,3 @@ class AddressView(LoginRequireMixin, View):
                                is_default=is_default)
         # 返回应答，刷新地址页面
         return redirect(reverse('user:address'))  # get 请求方式
-

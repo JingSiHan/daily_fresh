@@ -14,6 +14,8 @@ import os
 # print(t.age)
 
 # http://127.0.0.1:8000
+
+
 class IndexView(View):
     """首页"""
     def get(self, request):
@@ -32,13 +34,13 @@ class IndexView(View):
             promotion_banners = IndexPromotionBanner.objects.all().order_by('index')
 
             # 获取首页分类商品展示信息
-            for type in types:
-                image_banners = IndexTypeGoodsBanner.objects.filter(type=type, display_type=1).order_by('index')  # 待确认
-                title_banners = IndexTypeGoodsBanner.objects.filter(type=type, display_type=0).order_by('index')
+            for type_name in types:
+                image_banners = IndexTypeGoodsBanner.objects.filter(type=type_name, display_type=1).order_by('index')
+                title_banners = IndexTypeGoodsBanner.objects.filter(type=type_name, display_type=0).order_by('index')
 
                 # 动态给type增加属性，分别保存首页分类商品的图片展示信息和文字展示信息
-                type.image_banners = image_banners
-                type.title_banners = title_banners
+                type_name.image_banners = image_banners
+                type_name.title_banners = title_banners
 
             # 需要缓存的数据
             context = {'types': types,

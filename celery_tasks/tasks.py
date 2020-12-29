@@ -5,6 +5,7 @@ from celery import Celery
 import os
 import time
 
+
 # 在worker端使用以下代码
 import django
 
@@ -21,7 +22,7 @@ app = Celery('celery_tasks.tasks', broker='redis://192.168.1.19:6379/2')
 
 # 定义任务函数
 @app.task
-def send_register_active_eamil(to_email, username, token):
+def send_register_active_email(to_email, username, token):
     # 发邮件
     subject = '天天生鲜欢迎信息'
     message = ''
@@ -47,13 +48,13 @@ def generate_static_index():
     promotion_banners = IndexPromotionBanner.objects.all().order_by('index')
 
     # 获取首页分类商品展示信息
-    for type in types:
-        image_banners = IndexTypeGoodsBanner.objects.filter(type=type, display_type=1).order_by('index')  # 待确认
-        title_banners = IndexTypeGoodsBanner.objects.filter(type=type, display_type=0).order_by('index')
+    for type_name in types:
+        image_banners = IndexTypeGoodsBanner.objects.filter(type=type_name, display_type=1).order_by('index')  # 待确认
+        title_banners = IndexTypeGoodsBanner.objects.filter(type=type_name, display_type=0).order_by('index')
 
         # 动态给type增加属性，分别保存首页分类商品的图片展示信息和文字展示信息
-        type.image_banners = image_banners
-        type.title_banners = title_banners
+        type_name.image_banners = image_banners
+        type_name.title_banners = title_banners
 
     # 组织模板上下文
     context = {'types': types,
