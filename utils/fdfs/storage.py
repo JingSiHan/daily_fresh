@@ -15,7 +15,7 @@ class FDFS_Storage(Storage):
         self.client_conf = client_conf
 
         if base_url is None:
-            # base_url = 'http://192.168.1.17:8888'
+            # base_url = 'http://192.168.1.19:8888'
             base_url = settings.FDFS_URL
         self.base_url = base_url
 

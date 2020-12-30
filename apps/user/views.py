@@ -185,7 +185,7 @@ class UserInfoView(LoginRequireMixin, View):
         # from redis import StrictRedis
         # StrictRedis(host='127.0.0.1', port='6379', db=9)
         con = get_redis_connection('default')
-        history_key = 'history_%d' %user.id
+        history_key = 'history_%d' % user.id
 
         # 获取用户最新浏览的5条商品
         sku_ids = con.lrange(history_key, 0, 4)
