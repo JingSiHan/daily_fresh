@@ -21,14 +21,18 @@ class IndexView(View):
     def get(self, request):
         """显示首页"""
         # 先尝试从缓存中获取页面信息
-        context = cache.get('index_page_data')
+        context = cache.get(':index_page_data')
+        print(context)
         if context is None:
-            # print('－－－－设置缓存！！！')
+            print('－－－－设置缓存！！！')
             # 获取商品种类信息
             types = GoodsType.objects.all()
 
             # 获取首页轮播商品信息
             goods_banners = IndexGoodsBanner.objects.all().order_by('index')
+
+            for goods in goods_banners:
+                print('goods are:', goods)
 
             # 获取首页促销活动信息
             promotion_banners = IndexPromotionBanner.objects.all().order_by('index')
@@ -55,10 +59,11 @@ class IndexView(View):
                 cart_key = 'cart_%d' % user.id
                 cart_count = conn.hlen(cart_key)
             context = context.update(cart_count=cart_count)
+            print(context)
 
             # 设置缓存
             cache.set('index_page_data', context, 3600)
-            # print('写入缓存成功。')
+            print('写入缓存成功。')
 
         # 组织模板上下文
         context = cache.get('index_page_data')
