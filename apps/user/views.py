@@ -251,10 +251,10 @@ class AddressView(LoginRequireMixin, View):
 
         # 数据校验
         if not all([receiver, addr, phone]):
-            return render(request, 'templates/user_center_site.html', {'errmsg':'数据不完整。'})
+            return render(request, 'templates/user_center_site.html', {'errmsg': '数据不完整。'})
         # 校验手机号
         if not re.match('^1[3|4|5|7|8][0-9]{9}$', phone):
-            return render(request, 'templates/user_center_site.html', {'errmsg':'手机号码格式不正确。'})
+            return render(request, 'templates/user_center_site.html', {'errmsg': '手机号码格式不正确。'})
 
         # 添加地址:如果用户已经添加地址，则新添加的不作为默认地址。如果之前没有地址，那么新添加的作为默认地址。
         user = request.user

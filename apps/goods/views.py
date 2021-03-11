@@ -21,7 +21,7 @@ class IndexView(View):
     def get(self, request):
         """显示首页"""
         # 先尝试从缓存中获取页面信息
-        context = cache.get(':index_page_data')
+        context = cache.get(':1:index_page_data')
         print(context)
         if context is None:
             print('－－－－设置缓存！！！')
@@ -49,7 +49,8 @@ class IndexView(View):
             # 需要缓存的数据
             context = {'types': types,
                        'goods_banners': goods_banners,
-                       'promotion_banners': promotion_banners
+                       'promotion_banners': promotion_banners,
+                       'data': 'This is a message!!'
                        }
 
             user = request.user
@@ -66,5 +67,5 @@ class IndexView(View):
             print('写入缓存成功。')
 
         # 组织模板上下文
-        context = cache.get('index_page_data')
+        context = cache.get(':1:index_page_data')
         return render(request, 'templates/index.html', context)
